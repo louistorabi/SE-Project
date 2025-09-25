@@ -16,6 +16,9 @@ game_screen_index = 2
 # Sleep time - How long until next frame
 sleep_time = 0.04
 
+# Default Network IP Address
+default_network = "127.0.0.1"
+
 class Player():
 	def __init__(self, id, code_name, equip_id):
 		self.id = id
@@ -89,6 +92,9 @@ class Model():
 			self.red_players.append(Player("", "", ""))
 			self.green_players.append(Player("", "", ""))
 			i += 1
+		
+		# Network IP
+		self.network = default_network
 
 	def update(self):
 		# Update timer until 3 seconds have passed
@@ -129,15 +135,16 @@ class Model():
 			id *= -1
 		# Convert id to integer between 0 and 99
 		id = id % 100
-		# Check if id is in database
-#
-		# else
+
 		self.temp_id = id
+		# Check if id is in database; if in, set temp_code_name to code name in database
+#		
+		# else
 		self.need_code_name = True
 
 	# Enter code name into database
 	def enter_code_name(self, code_name):
-#		# Enter code name into database
+#		# Enter id and code name into database
 
 		# create temporary code name
 		self.temp_code_name = code_name
@@ -154,6 +161,7 @@ class Model():
 			self.green_players[self.num_green_players].code_name = self.temp_code_name
 			self.green_players[self.num_green_players].equip_id = equip_id
 			self.num_green_players += 1
+		# Broadcast player id
 	
 	def clear_players(self):
 		i = 0
@@ -172,6 +180,10 @@ class Model():
 		self.game_active = True
 		# Game code
 #
+	
+#	# Change Network IP
+	def change_network(self, network):
+		self.network = network
 
 class View():
 	def __init__(self, model):
@@ -194,6 +206,7 @@ class View():
 		self.popup_font_size = 30
 		self.popup_font = pygame.font.Font(None, self.popup_font_size)  # Default font
 
+		self.network_popup_box = Popup(self.popup_box_x, self.popup_box_y, self.popup_box_w, self.popup_box_h, "Enter Network IP: ", self.popup_input_x, self.popup_input_y, self.popup_input_w, self.popup_input_h, False)
 		self.id_popup_box = Popup(self.popup_box_x, self.popup_box_y, self.popup_box_w, self.popup_box_h, "Enter Player Id (0 - 99): ", self.popup_input_x, self.popup_input_y, self.popup_input_w, self.popup_input_h, False)
 		self.code_name_popup_box = Popup(self.popup_box_x, self.popup_box_y, self.popup_box_w, self.popup_box_h, "Id Unknown. Enter Code Name: ", self.popup_input_x, self.popup_input_y, self.popup_input_w, self.popup_input_h, False)
 		self.equip_id_popup_box = Popup(self.popup_box_x, self.popup_box_y, self.popup_box_w, self.popup_box_h, "Please Enter Equipment Id: ", self.popup_input_x, self.popup_input_y, self.popup_input_w, self.popup_input_h, False)
@@ -297,41 +310,41 @@ class View():
 		self.funct_keys_boxes_h = self.funct_keys_boxes_w
 		self.funct_keys_boxes_x = (self.screen_w - self.funct_keys_boxes_w * self.num_funct_keys)/2
 		self.funct_keys_boxes_y = self.screen_h - self.funct_keys_boxes_h
-		# F1 - Edit Game
-		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"F1","Edit","Game"))
+		# F1 - Add Player
+		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"F1","Add","Player"))
 		self.funct_keys_boxes_x += self.funct_keys_boxes_w
-		# F2 - Game Parameters
-		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"F2","Game","Parameters"))
-		self.funct_keys_boxes_x += self.funct_keys_boxes_w
-		# F3 - Game Parameters
-		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"F3","Start","Game"))
-		self.funct_keys_boxes_x += self.funct_keys_boxes_w
-		# F4 - None
+		# F2 - None
 		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"","",""))
 		self.funct_keys_boxes_x += self.funct_keys_boxes_w
-		# F5 - Pre-entered Games
-		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"F5","PreEntered","Games"))
+		# F3 - Start Game
+		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"F3","Start","Game"))
+		self.funct_keys_boxes_x += self.funct_keys_boxes_w
+		# F4 - Change Network IP
+		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"F4","Edit","Network IP"))
+		self.funct_keys_boxes_x += self.funct_keys_boxes_w
+		# F5 - Reset Network IP
+		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"F5","Reset IP","To Default"))
 		self.funct_keys_boxes_x += self.funct_keys_boxes_w
 		# F6 - None
 		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"","",""))
 		self.funct_keys_boxes_x += self.funct_keys_boxes_w
 		# F7 - None
-		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"F7","",""))
+		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"","",""))
 		self.funct_keys_boxes_x += self.funct_keys_boxes_w
-		# F8 - View Game
-		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"F8","View","Game"))
+		# F8 - None
+		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"","",""))
 		self.funct_keys_boxes_x += self.funct_keys_boxes_w
 		# F9 - None
 		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"","",""))
 		self.funct_keys_boxes_x += self.funct_keys_boxes_w
 		# F10 - None
-		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"F10","Flick","Sync"))
-		self.funct_keys_boxes_x += self.funct_keys_boxes_w
-		# F11 - Flick Sync
 		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"","",""))
 		self.funct_keys_boxes_x += self.funct_keys_boxes_w
-		# F12 - Clear Game
-		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"F12","Clear","Game"))
+		# F11 - None
+		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"","",""))
+		self.funct_keys_boxes_x += self.funct_keys_boxes_w
+		# F12 - Clear Players
+		self.funct_keys_boxes.append(Funct_Box(self.funct_keys_boxes_x,self.funct_keys_boxes_y,self.funct_keys_boxes_w,self.funct_keys_boxes_h,"F12","Clear","Players"))
 		self.funct_keys_boxes_x += self.funct_keys_boxes_w
 
 	def update(self):
@@ -402,8 +415,15 @@ class View():
 				self.screen.blit(self.txt_surface, (self.green_code_name_boxes[i].x + 5, self.green_code_name_boxes[i].y + 5))  # Position text
 				i += 1
 			# Draw popup box if needed
+			if (self.network_popup_box.popup):
+				pygame.draw.rect(self.screen, self.white, self.network_popup_box.text_box)
+				self.txt_surface = self.popup_font.render(self.network_popup_box.text, True, self.black)  # Render text
+				self.screen.blit(self.txt_surface, (self.popup_box_x + 10, self.popup_box_y + 20))  # Position text
+				pygame.draw.rect(self.screen, self.black, self.network_popup_box.input_box, 1)
+				self.txt_surface = self.popup_font.render(self.network_popup_box.input_feedback, True, self.black)  # Render text
+				self.screen.blit(self.txt_surface, (self.popup_input_x + 10, self.popup_input_y + 10))  # Position text
 			# Draw id popup box
-			if (self.id_popup_box.popup):
+			elif (self.id_popup_box.popup):
 				pygame.draw.rect(self.screen, self.white, self.id_popup_box.text_box)
 				self.txt_surface = self.popup_font.render(self.id_popup_box.text, True, self.black)  # Render text
 				self.screen.blit(self.txt_surface, (self.popup_box_x + 10, self.popup_box_y + 20))  # Position text
@@ -453,14 +473,39 @@ class Controller():
 					if event.key == K_ESCAPE:
 						self.keep_going = False
 				elif event.type == pygame.KEYUP: #self is keyReleased!
-					# Add player if key is F1 and if model needs a player id (prevents starting another player adding procedure)
-					if (event.key == K_F1) and (self.model.need_id == True):
+					# Add player if key is F1 and if model needs a player id (prevents starting another player adding procedure) and network popup is not on screen
+					if (event.key == K_F1) and (self.model.need_id == True) and (self.view.network_popup_box.popup == False):
 						self.view.id_popup_box.popup = True
 						self.model.need_id = False
+					# Start game if F3 is pressed
 					elif event.key == K_F3:
 						self.model.start_game()
+					# Prompt for new network ip if F4 is pressed and no other popups are on screen
+					elif (event.key == K_F4) and (self.view.network_popup_box.popup == False) and (self.view.id_popup_box.popup == False) and (self.view.code_name_popup_box.popup == False) and ((self.view.equip_id_popup_box.popup == False)):
+						self.view.network_popup_box.popup = True
+					# Reset network ip to default (127.0.0.1) if F6 is pressed and network popup is not on screen
+					elif (event.key == K_F5) and (self.view.network_popup_box.popup == False):
+						self.model.change_network(default_network)
+					# Clear players from tables if F12 is pressed
 					elif event.key == K_F12:
 						self.model.clear_players()
+					# Enter characters into network popup
+					elif (self.view.network_popup_box.popup):
+						if (event.key == K_BACKSPACE):
+							self.view.network_popup_box.input_feedback = self.view.network_popup_box.input_feedback[:-1]
+						elif (event.key == K_RETURN):
+							# Prevent empty input
+							if (self.view.network_popup_box.input_feedback == ""):
+								{}
+							else:
+								# remove popup
+								self.view.network_popup_box.popup = False
+								# Change network_ip
+								self.model.change_network(str(self.view.network_popup_box.input_feedback))
+								# clear feedback
+								self.view.network_popup_box.input_feedback = ""
+						else:
+							self.view.network_popup_box.input_feedback += pygame.key.name(event.key)
 					# Enter characters into id popup
 					elif (self.view.id_popup_box.popup):
 						if (event.key == K_BACKSPACE):
@@ -530,64 +575,59 @@ class Controller():
 							self.view.equip_id_popup_box.input_feedback += pygame.key.name(event.key)
 			keys = pygame.key.get_pressed()
 
-# Database code
-import psycopg2
-from psycopg2 import sql
-# Define connection parameters
-connection_params = {
-    'dbname': 'photon',
-    'user': 'student',
-    #'password': 'student',
-    #'host': 'localhost',
-    #'port': '5432'
-}
+# # Database code
+# import psycopg2
+# from psycopg2 import sql
+# # Define connection parameters
+# connection_params = {
+#     'dbname': 'photon',
+#     'user': 'student',
+#     #'password': 'student',
+#     #'host': 'localhost',
+#     #'port': '5432'
+# }
 
-try:
-	# Connect to PostgreSQL
-    conn = psycopg2.connect(**connection_params)
-    cursor = conn.cursor()
+# try:
+# 	# Connect to PostgreSQL
+#     conn = psycopg2.connect(**connection_params)
+#     cursor = conn.cursor()
 
-    # Execute a query
-    cursor.execute("SELECT version();")
+#     # Execute a query
+#     cursor.execute("SELECT version();")
 
-    # Fetch and display the result
-    version = cursor.fetchone()
-    print(f"Connected to - {version}")
+#     # Fetch and display the result
+#     version = cursor.fetchone()
+#     print(f"Connected to - {version}")
 
-    # Example: creating a table
-    #cursor.execute('''
-    #    CREATE TABLE IF NOT EXISTS employees (
-    #        id SERIAL PRIMARY KEY,
-    #        name VARCHAR(100),
-    #        department VARCHAR(50),
-    #        salary DECIMAL
-    #    );
-    #''')
+#     # Insert two players
+#     cursor.execute('''
+#         INSERT INTO players (id, codename)
+#         VALUES (%s, %s);
+#     ''', ('1', 'Shark'))
+	
+# 	# cursor.execute('''
+# 	# 	INSERT INTO players (id, codename)
+# 	# 	VALUES (%s, %s);
+# 	# ''', ('2', 'Lazer'))
 
-    # Insert sample data
-    cursor.execute('''
-        INSERT INTO players (id, codename)
-        VALUES (%s, %s);
-    ''', ('500', 'BhodiLi'))
+#     # Commit the changes
+#     conn.commit()
 
-    # Commit the changes
-    conn.commit()
+#     # Fetch and display data from the table
+#     cursor.execute("SELECT * FROM players;")
+#     rows = cursor.fetchall()
+#     for row in rows:
+#         print(row)
 
-    # Fetch and display data from the table
-    cursor.execute("SELECT * FROM players;")
-    rows = cursor.fetchall()
-    for row in rows:
-        print(row)
+# except Exception as error:
+#     print(f"Error connecting to PostgreSQL database: {error}")
 
-except Exception as error:
-    print(f"Error connecting to PostgreSQL database: {error}")
-
-finally:
-    # Close the cursor and connection
-    if cursor:
-        cursor.close()
-    if conn:
-        conn.close()
+# finally:
+#     # Close the cursor and connection
+#     if cursor:
+#         cursor.close()
+#     if conn:
+#         conn.close()
 
 # Running the code code
 pygame.init()
