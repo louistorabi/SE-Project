@@ -582,6 +582,13 @@ try:
 except Exception as error:
     print(f"Error connecting to PostgreSQL database: {error}")
 
+finally:
+    # Close the cursor and connection
+    if cursor:
+        cursor.close()
+    if conn:
+        conn.close()
+
 # Running the code code
 pygame.init()
 m = Model()
