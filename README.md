@@ -7,7 +7,8 @@ Team Members -
   Louis Torabi - louistorabi
 
   Installation Instructions - 
-  
+
+Enter chmod +x install.sh in terminal
 Execute install.sh
 Follow Prompts on Terminal
 
