@@ -1,12 +1,14 @@
-# Name: Lane Harper
+# Name: Team 1
 # Description: Software Engineering Project
 # Date: Fall 2025
 
 import pygame
 import time
+import psycopg2
 
 from pygame.locals import*
 from time import sleep
+from psycopg2 import sql
 
 # Screen indices - used to switch view between screens
 splash_index = 0
@@ -79,6 +81,35 @@ class Model():
 		self.temp_id = -1
 		self.temp_code_name = ""
 
+		# Creating Required SQL DB connections
+		connection_params = {
+			'dbname': 'photon',
+  			'user': 'student',
+		}
+
+		self.conn = psycopg2.connect(**connection_params)
+		self.cursor = self.conn.cursor()
+
+		# Add two additional players to database if not already in database
+		# Check if id is in database
+		sql_query = "SELECT * FROM players WHERE id = %s;"
+		self.cursor.execute(sql_query, (2,))
+		rows = self.cursor.fetchall()
+		if (rows == False):
+			# Enter id and code name into database
+			sql_query = "INSERT INTO players (id, codename) VALUES (%s, %s);"
+			self.cursor.execute(sql_query, 2, "Shark")
+			self.conn.commit()
+		# Check if id is in database
+		sql_query = "SELECT * FROM players WHERE id = %s;"
+		self.cursor.execute(sql_query, (3,))
+		rows = self.cursor.fetchall()
+		# Enter id and code name into database
+		if (rows == False):
+			sql_query = "INSERT INTO players (id, codename) VALUES (%s, %s);"
+			self.cursor.execute(sql_query, 3, "Lazer")
+			self.conn.commit()
+
 		# If game is currently in progress
 		self.game_active = False
 		# Game timer
@@ -138,14 +169,30 @@ class Model():
 
 		self.temp_id = id
 		# Check if id is in database; if in, set temp_code_name to code name in database
-#		
-		# else
+		sql_query = "SELECT * FROM players WHERE id = %s;"
+		self.cursor.execute(sql_query, (id,))
+		rows = self.cursor.fetchall()
+		# Set this to failure and then change it if we succeed
 		self.need_code_name = True
+		# rows evaluates to true if there is anything in the list, and the only element in the list must be the correct tuple
+		if (rows):
+			self.temp_code_name = rows[0][1] 
+			self.need_code_name = False
+		# Display all players in database before insertion of new id
+		self.cursor.execute("SELECT * FROM players")
+		print("Current SQL contents (before insertion of current id):")
+		rows = self.cursor.fetchall()
+		for row in rows:
+			print(row)
+
+		
 
 	# Enter code name into database
 	def enter_code_name(self, code_name):
-#		# Enter id and code name into database
-
+		# Enter id and code name into database
+		sql_query = "INSERT INTO players (id, codename) VALUES (%s, %s);"
+		self.cursor.execute(sql_query,(self.temp_id, code_name))
+		self.conn.commit()
 		# create temporary code name
 		self.temp_code_name = code_name
 
@@ -638,4 +685,7 @@ while c.keep_going:
 	c.update()
 	m.update()
 	v.update()
+
 	sleep(sleep_time)
+m.conn.close()
+m.cursor.close()
