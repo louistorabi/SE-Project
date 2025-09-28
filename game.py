@@ -95,7 +95,7 @@ class Model():
 		sql_query = "SELECT * FROM players WHERE id = %s;"
 		self.cursor.execute(sql_query, (2,))
 		rows = self.cursor.fetchall()
-		if (rows == False):
+		if (rows == 0):
 			# Enter id and code name into database
 			sql_query = "INSERT INTO players (id, codename) VALUES (%s, %s);"
 			self.cursor.execute(sql_query, 2, "Shark")
@@ -105,7 +105,7 @@ class Model():
 		self.cursor.execute(sql_query, (3,))
 		rows = self.cursor.fetchall()
 		# Enter id and code name into database
-		if (rows == False):
+		if (rows == 0):
 			sql_query = "INSERT INTO players (id, codename) VALUES (%s, %s);"
 			self.cursor.execute(sql_query, 3, "Lazer")
 			self.conn.commit()
