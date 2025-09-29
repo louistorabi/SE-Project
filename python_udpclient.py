@@ -6,11 +6,11 @@ END_GAME_CODE = 221
 DEFAULT_TX_PORT = 7500
 
 class PythonUdpClient:
-    def __init__(self, destip="127.0.0.1", dest_port=DEFAULT_TX_PORT, enable_broadcast=False):
+    def __init__(self, dest_ip="127.0.0.1", dest_port=DEFAULT_TX_PORT, enable_broadcast=False):
         self.dest_ip= dest_ip
         self.dest_port = dest_port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.  setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         if enable_broadcast:
             self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
