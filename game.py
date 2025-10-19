@@ -16,7 +16,8 @@ from python_udpclient import PythonUdpClient
 splash_index = 0
 player_screen_index = 1
 game_screen_index = 2
-
+countdown_screen_index = 3
+action_screen_index = 4
 # Sleep time - How long until next frame
 sleep_time = 0.04
 
@@ -118,6 +119,9 @@ class Model():
 		self.game_timer = 0
 		# Length of game (in seconds)
 		self.game_length = 10
+		self.countdown_active = False
+		self.countdown_timer = 0
+		self.countdown_length = 3
 
 		# Initialize Arrays
 		i = 0
@@ -134,18 +138,31 @@ class Model():
 		if (self.splash_timer < (3 / sleep_time)):
 			self.splash_timer += 1
 		else:
-			# Display player entry screen
-			if (self.game_active == False):
-				self.screen_index = player_screen_index
-			# Display game screen until game is over
-			if (self.game_active == True):
-				self.screen_index = game_screen_index
-				if (self.game_timer < (self.game_length / sleep_time)):
-					self.game_timer += 1
-				else:
-					self.game_active = False
-					# Clear players
-					self.clear_players()
+			#pre game countdown
+		if self.countdown_active:
+			self.screen_index = countdown_screen_index 
+        if (self.countdown_timer < (self.countdown_length / sleep_time)):
+            self.countdown_timer += 1
+        else:
+            #countdown finished -> switch to action
+            self.countdown_active = False
+            self.game_active = True
+            self.game_timer = 0
+            self.screen_index = action_screen_index
+
+    #In game action (timer-based end)
+    elif self.game_active:
+        self.screen_index = action_screen_index
+        if (self.game_timer < (self.game_length / sleep_time)):
+            self.game_timer += 1
+        else:
+            self.game_active = False
+            self.clear_players()
+            self.screen_index = player_screen_index
+
+    #Default to player entry when idle
+    else:
+        self.screen_index = player_screen_index
 	
 	def display_red_players(self):
 		print("Displaying Red Team:")
@@ -224,9 +241,11 @@ class Model():
 		self.num_green_players = 0
 	
 	def start_game(self):
-		print("Starting game")
-		# Switch screen index to show game screen
-		self.game_active = True
+		print("Starting countdown..")
+		#Initialize timer
+		self.countdown_active = True
+		self.countdown_timer = 0
+		self.screen_index = countdown_screen_index
 		# Game code
 #
 	
@@ -307,6 +326,10 @@ class View():
 		self.green_block_title = "GREEN TEAM"
 		self.block_title_font_size = 20
 		self.block_title_font = pygame.font.Font(None, self.block_title_font_size)  # Default font
+
+		#font for countdown/ action banners
+		self.count_font = pygame.font.Font(None,160)
+		self.banner_font = pygame.font.Font(None, 64)
 
 		# Id Box Dimensions
 		self.id_box_w = 32
@@ -495,6 +518,21 @@ class View():
 				pygame.draw.rect(self.screen, self.black, self.equip_id_popup_box.input_box, 1)
 				self.txt_surface = self.popup_font.render(self.equip_id_popup_box.input_feedback, True, self.black)  # Render text
 				self.screen.blit(self.txt_surface, (self.popup_input_x + 10, self.popup_input_y + 10))  # Position text
+			#Countdown screen
+			elif (self.model.screen_index == countdown_screen_index):
+    			elapsed = self.model.countdown_timer * sleep_time
+    			remaining = max(0, int(round(self.model.countdown_length - elapsed)))
+    			msg = str(remaining) if remaining > 0 else "GO!"
+    			text_surf = self.count_font.render(msg, True, self.white)
+    			rect = text_surf.get_rect(center=(self.screen_w//2, self.screen_h//2))
+    			self.screen.blit(text_surf, rect)
+		
+			#Game action screen
+			elif (self.model.screen_index == action_screen_index):
+    			banner = self.banner_font.render("GAME ACTION", True, self.white)
+    			rect = banner.get_rect(center=(self.screen_w//2, 60))
+    			self.screen.blit(banner, rect)
+		
 		# Draw game screen
 		elif (self.model.screen_index == game_screen_index):
 #			
