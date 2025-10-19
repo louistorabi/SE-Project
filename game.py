@@ -137,14 +137,14 @@ class Model():
 		# Update timer until 3 seconds have passed
 		if (self.splash_timer < (3 / sleep_time)):
 			self.splash_timer += 1
-		else:
+			else:
 			#pre game countdown
 			if self.countdown_active:
 				self.screen_index = countdown_screen_index 
-        		if (self.countdown_timer < (self.countdown_length / sleep_time)):
+				if (self.countdown_timer < (self.countdown_length / sleep_time)):
             	self.countdown_timer += 1
-        		else:
-            		#countdown finished -> switch to action
+				else:
+					#countdown finished -> switch to action
             		self.countdown_active = False
             		self.game_active = True
             		self.game_timer = 0
@@ -729,4 +729,5 @@ while c.keep_going:
 	sleep(sleep_time)
 m.conn.close()
 m.cursor.close()
+
 
